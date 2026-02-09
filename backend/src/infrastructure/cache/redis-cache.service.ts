@@ -19,7 +19,7 @@ export class RedisCacheService implements OnModuleDestroy {
   async get<T>(key: string): Promise<T | null> {
     try {
       const value = await this.client.get(key);
-      return value ? JSON.parse(value) : null;
+      return value ? (JSON.parse(value) as T) : null;
     } catch {
       return null;
     }

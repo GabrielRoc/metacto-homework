@@ -1,4 +1,9 @@
-import { Inject, Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  NotFoundException,
+  ConflictException,
+} from '@nestjs/common';
 import type { IAuthorRepository } from '../../domain/repositories/author.repository.interface';
 import type { IFeatureProposalRepository } from '../../domain/repositories/feature-proposal.repository.interface';
 import type { IUpvoteRepository } from '../../domain/repositories/upvote.repository.interface';
@@ -25,7 +30,10 @@ export class UpvoteFeatureProposalUseCase {
 
     const author = await this.authorRepository.findOrCreate(dto.email);
 
-    const existingUpvote = await this.upvoteRepository.findByAuthorAndFeature(author.id, featureId);
+    const existingUpvote = await this.upvoteRepository.findByAuthorAndFeature(
+      author.id,
+      featureId,
+    );
     if (existingUpvote) {
       throw new ConflictException('You have already upvoted this feature');
     }
@@ -35,8 +43,11 @@ export class UpvoteFeatureProposalUseCase {
         authorId: author.id,
         featureId,
       });
-    } catch (error: any) {
-      if (error instanceof ConflictException || error?.status === 409) {
+    } catch (error: unknown) {
+      if (
+        error instanceof ConflictException ||
+        (error as { status?: number })?.status === 409
+      ) {
         throw new ConflictException('You have already upvoted this feature');
       }
       throw error;

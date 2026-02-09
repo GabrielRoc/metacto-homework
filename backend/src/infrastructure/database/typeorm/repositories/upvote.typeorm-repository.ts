@@ -12,7 +12,10 @@ export class UpvoteTypeormRepository implements IUpvoteRepository {
     private readonly repo: Repository<UpvoteOrmEntity>,
   ) {}
 
-  async findByAuthorAndFeature(authorId: string, featureId: string): Promise<Upvote | null> {
+  async findByAuthorAndFeature(
+    authorId: string,
+    featureId: string,
+  ): Promise<Upvote | null> {
     const entity = await this.repo.findOne({
       where: { authorId, featureId },
     });
@@ -28,7 +31,10 @@ export class UpvoteTypeormRepository implements IUpvoteRepository {
       const saved = await this.repo.save(entity);
       return this.toDomain(saved);
     } catch (error) {
-      if (error instanceof QueryFailedError && (error as any).code === '23505') {
+      if (
+        error instanceof QueryFailedError &&
+        (error as { code?: string }).code === '23505'
+      ) {
         throw new ConflictException('Duplicate upvote');
       }
       throw error;
