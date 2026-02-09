@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
@@ -12,13 +12,13 @@ import { validateEmail } from "@/lib/validation";
 
 export default function SettingsPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("savedEmail") || "";
+    }
+    return "";
+  });
   const [emailError, setEmailError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const saved = localStorage.getItem("savedEmail");
-    if (saved) setEmail(saved);
-  }, []);
 
   const handleSave = () => {
     const err = validateEmail(email);
