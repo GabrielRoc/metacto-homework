@@ -7,4 +7,6 @@ export const ListFeatureProposalsSchema = z.object({
   sortOrder: z.enum(['asc', 'desc']).default('desc'),
 });
 
-export type ListFeatureProposalsDto = z.infer<typeof ListFeatureProposalsSchema>;
+export type ListFeatureProposalsDto = z.infer<
+  typeof ListFeatureProposalsSchema
+>;

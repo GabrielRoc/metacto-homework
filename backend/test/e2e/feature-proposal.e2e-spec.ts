@@ -37,7 +37,13 @@ describe('FeatureProposalController (e2e)', () => {
     it('should return paginated features', async () => {
       const mockResponse = {
         data: [
-          { id: 'f1', text: 'Test feature proposal', authorEmail: 'test@test.com', upvoteCount: 0, createdAt: new Date().toISOString() },
+          {
+            id: 'f1',
+            text: 'Test feature proposal',
+            authorEmail: 'test@test.com',
+            upvoteCount: 0,
+            createdAt: new Date().toISOString(),
+          },
         ],
         meta: { page: 1, limit: 10, total: 1, totalPages: 1 },
       };
@@ -64,7 +70,10 @@ describe('FeatureProposalController (e2e)', () => {
 
       const response = await request(app.getHttpServer())
         .post('/api/features')
-        .send({ text: 'A new feature proposal for testing', authorEmail: 'creator@test.com' })
+        .send({
+          text: 'A new feature proposal for testing',
+          authorEmail: 'creator@test.com',
+        })
         .expect(201);
 
       expect(response.body).toEqual(mockResponse);

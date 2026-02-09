@@ -14,13 +14,21 @@ export class ListFeatureProposalsUseCase {
   async execute(dto: ListFeatureProposalsDto) {
     const cacheKey = `features:page=${dto.page}:limit=${dto.limit}:sort=${dto.sortBy}:order=${dto.sortOrder}`;
 
-    const cached = await this.cacheService.get<ReturnType<typeof this.buildResponse>>(cacheKey);
+    const cached =
+      await this.cacheService.get<ReturnType<typeof this.buildResponse>>(
+        cacheKey,
+      );
     if (cached) {
       return cached;
     }
 
     const [proposals, total] = await Promise.all([
-      this.featureProposalRepository.findPaginated(dto.page, dto.limit, dto.sortBy, dto.sortOrder),
+      this.featureProposalRepository.findPaginated(
+        dto.page,
+        dto.limit,
+        dto.sortBy,
+        dto.sortOrder,
+      ),
       this.featureProposalRepository.countAll(),
     ]);
 
@@ -32,7 +40,13 @@ export class ListFeatureProposalsUseCase {
   }
 
   private buildResponse(
-    proposals: Array<{ id: string; text: string; authorEmail?: string; upvoteCount: number; createdAt: Date }>,
+    proposals: Array<{
+      id: string;
+      text: string;
+      authorEmail?: string;
+      upvoteCount: number;
+      createdAt: Date;
+    }>,
     page: number,
     limit: number,
     total: number,

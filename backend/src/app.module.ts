@@ -18,7 +18,10 @@ import { UpvoteTypeormRepository } from './infrastructure/database/typeorm/repos
     ListFeatureProposalsUseCase,
     UpvoteFeatureProposalUseCase,
     { provide: 'AUTHOR_REPOSITORY', useClass: AuthorTypeormRepository },
-    { provide: 'FEATURE_PROPOSAL_REPOSITORY', useClass: FeatureProposalTypeormRepository },
+    {
+      provide: 'FEATURE_PROPOSAL_REPOSITORY',
+      useClass: FeatureProposalTypeormRepository,
+    },
     { provide: 'UPVOTE_REPOSITORY', useClass: UpvoteTypeormRepository },
   ],
 })

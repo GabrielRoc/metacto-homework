@@ -49,12 +49,25 @@ describe('ListFeatureProposalsUseCase', () => {
 
   it('should return cached data when available', async () => {
     const cachedData = {
-      data: [{ id: 'f1', text: 'Cached proposal', authorEmail: 'test@test.com', upvoteCount: 1, createdAt: now.toISOString() }],
+      data: [
+        {
+          id: 'f1',
+          text: 'Cached proposal',
+          authorEmail: 'test@test.com',
+          upvoteCount: 1,
+          createdAt: now.toISOString(),
+        },
+      ],
       meta: { page: 1, limit: 10, total: 1, totalPages: 1 },
     };
     cacheService.get.mockResolvedValue(cachedData);
 
-    const result = await useCase.execute({ page: 1, limit: 10, sortBy: 'createdAt', sortOrder: 'desc' });
+    const result = await useCase.execute({
+      page: 1,
+      limit: 10,
+      sortBy: 'createdAt',
+      sortOrder: 'desc',
+    });
 
     expect(result).toEqual(cachedData);
     expect(featureRepo.findPaginated).not.toHaveBeenCalled();
@@ -65,10 +78,20 @@ describe('ListFeatureProposalsUseCase', () => {
     featureRepo.findPaginated.mockResolvedValue(sampleProposals);
     featureRepo.countAll.mockResolvedValue(2);
 
-    const result = await useCase.execute({ page: 1, limit: 10, sortBy: 'createdAt', sortOrder: 'desc' });
+    const result = await useCase.execute({
+      page: 1,
+      limit: 10,
+      sortBy: 'createdAt',
+      sortOrder: 'desc',
+    });
 
     expect(result.data).toHaveLength(2);
-    expect(result.meta).toEqual({ page: 1, limit: 10, total: 2, totalPages: 1 });
+    expect(result.meta).toEqual({
+      page: 1,
+      limit: 10,
+      total: 2,
+      totalPages: 1,
+    });
     expect(cacheService.set).toHaveBeenCalledWith(
       'features:page=1:limit=10:sort=createdAt:order=desc',
       expect.any(Object),
@@ -81,7 +104,12 @@ describe('ListFeatureProposalsUseCase', () => {
     featureRepo.findPaginated.mockResolvedValue(sampleProposals);
     featureRepo.countAll.mockResolvedValue(25);
 
-    const result = await useCase.execute({ page: 1, limit: 10, sortBy: 'createdAt', sortOrder: 'desc' });
+    const result = await useCase.execute({
+      page: 1,
+      limit: 10,
+      sortBy: 'createdAt',
+      sortOrder: 'desc',
+    });
 
     expect(result.meta.totalPages).toBe(3);
     expect(result.meta.total).toBe(25);
@@ -92,9 +120,19 @@ describe('ListFeatureProposalsUseCase', () => {
     featureRepo.findPaginated.mockResolvedValue(sampleProposals);
     featureRepo.countAll.mockResolvedValue(2);
 
-    await useCase.execute({ page: 1, limit: 10, sortBy: 'upvoteCount', sortOrder: 'asc' });
+    await useCase.execute({
+      page: 1,
+      limit: 10,
+      sortBy: 'upvoteCount',
+      sortOrder: 'asc',
+    });
 
-    expect(featureRepo.findPaginated).toHaveBeenCalledWith(1, 10, 'upvoteCount', 'asc');
+    expect(featureRepo.findPaginated).toHaveBeenCalledWith(
+      1,
+      10,
+      'upvoteCount',
+      'asc',
+    );
   });
 
   it('should use different cache keys for different sort params', async () => {
@@ -102,11 +140,25 @@ describe('ListFeatureProposalsUseCase', () => {
     featureRepo.findPaginated.mockResolvedValue(sampleProposals);
     featureRepo.countAll.mockResolvedValue(2);
 
-    await useCase.execute({ page: 1, limit: 10, sortBy: 'createdAt', sortOrder: 'desc' });
-    expect(cacheService.get).toHaveBeenCalledWith('features:page=1:limit=10:sort=createdAt:order=desc');
+    await useCase.execute({
+      page: 1,
+      limit: 10,
+      sortBy: 'createdAt',
+      sortOrder: 'desc',
+    });
+    expect(cacheService.get).toHaveBeenCalledWith(
+      'features:page=1:limit=10:sort=createdAt:order=desc',
+    );
 
-    await useCase.execute({ page: 1, limit: 10, sortBy: 'upvoteCount', sortOrder: 'asc' });
-    expect(cacheService.get).toHaveBeenCalledWith('features:page=1:limit=10:sort=upvoteCount:order=asc');
+    await useCase.execute({
+      page: 1,
+      limit: 10,
+      sortBy: 'upvoteCount',
+      sortOrder: 'asc',
+    });
+    expect(cacheService.get).toHaveBeenCalledWith(
+      'features:page=1:limit=10:sort=upvoteCount:order=asc',
+    );
   });
 
   it('should pass sortBy=createdAt sortOrder=desc by default pattern', async () => {
@@ -114,8 +166,18 @@ describe('ListFeatureProposalsUseCase', () => {
     featureRepo.findPaginated.mockResolvedValue(sampleProposals);
     featureRepo.countAll.mockResolvedValue(2);
 
-    await useCase.execute({ page: 1, limit: 10, sortBy: 'createdAt', sortOrder: 'desc' });
+    await useCase.execute({
+      page: 1,
+      limit: 10,
+      sortBy: 'createdAt',
+      sortOrder: 'desc',
+    });
 
-    expect(featureRepo.findPaginated).toHaveBeenCalledWith(1, 10, 'createdAt', 'desc');
+    expect(featureRepo.findPaginated).toHaveBeenCalledWith(
+      1,
+      10,
+      'createdAt',
+      'desc',
+    );
   });
 });

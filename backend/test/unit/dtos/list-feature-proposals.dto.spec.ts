@@ -30,12 +30,16 @@ describe('ListFeatureProposalsSchema', () => {
   });
 
   it('should reject invalid sortBy value', () => {
-    const result = ListFeatureProposalsSchema.safeParse({ sortBy: 'invalidField' });
+    const result = ListFeatureProposalsSchema.safeParse({
+      sortBy: 'invalidField',
+    });
     expect(result.success).toBe(false);
   });
 
   it('should reject invalid sortOrder value', () => {
-    const result = ListFeatureProposalsSchema.safeParse({ sortOrder: 'sideways' });
+    const result = ListFeatureProposalsSchema.safeParse({
+      sortOrder: 'sideways',
+    });
     expect(result.success).toBe(false);
   });
 

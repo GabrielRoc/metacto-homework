@@ -18,7 +18,11 @@ import { UpvoteOrmEntity } from './typeorm/entities/upvote.orm-entity';
       synchronize: true,
       namingStrategy: new SnakeNamingStrategy(),
     }),
-    TypeOrmModule.forFeature([AuthorOrmEntity, FeatureProposalOrmEntity, UpvoteOrmEntity]),
+    TypeOrmModule.forFeature([
+      AuthorOrmEntity,
+      FeatureProposalOrmEntity,
+      UpvoteOrmEntity,
+    ]),
   ],
   exports: [TypeOrmModule],
 })

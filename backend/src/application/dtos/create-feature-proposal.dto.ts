@@ -6,10 +6,16 @@ export const CreateFeatureProposalSchema = z.object({
   authorEmail: z.string().email(),
 });
 
-export type CreateFeatureProposalDto = z.infer<typeof CreateFeatureProposalSchema>;
+export type CreateFeatureProposalDto = z.infer<
+  typeof CreateFeatureProposalSchema
+>;
 
 export class CreateFeatureProposalBody {
-  @ApiProperty({ example: 'Add dark mode support to the dashboard', minLength: 10, maxLength: 500 })
+  @ApiProperty({
+    example: 'Add dark mode support to the dashboard',
+    minLength: 10,
+    maxLength: 500,
+  })
   text: string;
 
   @ApiProperty({ example: 'user@example.com' })

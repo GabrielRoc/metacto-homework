@@ -31,7 +31,11 @@ describe('CreateFeatureProposalUseCase', () => {
       invalidatePattern: jest.fn(),
     } as any;
 
-    useCase = new CreateFeatureProposalUseCase(authorRepo, featureRepo, cacheService);
+    useCase = new CreateFeatureProposalUseCase(
+      authorRepo,
+      featureRepo,
+      cacheService,
+    );
   });
 
   it('should create a feature proposal and return the response', async () => {
@@ -98,6 +102,8 @@ describe('CreateFeatureProposalUseCase', () => {
     });
 
     expect(result.authorEmail).toBe('existing@example.com');
-    expect(authorRepo.findOrCreate).toHaveBeenCalledWith('existing@example.com');
+    expect(authorRepo.findOrCreate).toHaveBeenCalledWith(
+      'existing@example.com',
+    );
   });
 });

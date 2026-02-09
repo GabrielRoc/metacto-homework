@@ -41,7 +41,12 @@ describe('UpvoteFeatureProposalUseCase', () => {
       invalidatePattern: jest.fn(),
     } as any;
 
-    useCase = new UpvoteFeatureProposalUseCase(authorRepo, featureRepo, upvoteRepo, cacheService);
+    useCase = new UpvoteFeatureProposalUseCase(
+      authorRepo,
+      featureRepo,
+      upvoteRepo,
+      cacheService,
+    );
   });
 
   it('should upvote a feature proposal successfully', async () => {
