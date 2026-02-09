@@ -20,7 +20,12 @@ export class FeatureProposalTypeormRepository implements IFeatureProposalReposit
     return entity ? this.toDomain(entity) : null;
   }
 
-  async findPaginated(page: number, limit: number, sortBy: string, sortOrder: string): Promise<FeatureProposal[]> {
+  async findPaginated(
+    page: number,
+    limit: number,
+    sortBy: string,
+    sortOrder: string,
+  ): Promise<FeatureProposal[]> {
     const entities = await this.repo.find({
       relations: ['author'],
       order: { [sortBy]: sortOrder.toUpperCase() as 'ASC' | 'DESC' },
