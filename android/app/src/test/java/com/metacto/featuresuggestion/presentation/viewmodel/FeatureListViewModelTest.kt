@@ -1,12 +1,14 @@
 package com.metacto.featuresuggestion.presentation.viewmodel
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import com.metacto.featuresuggestion.data.local.SettingsDataStore
 import com.metacto.featuresuggestion.domain.model.FeatureProposal
 import com.metacto.featuresuggestion.domain.model.PaginatedResult
 import com.metacto.featuresuggestion.domain.usecase.GetFeatureProposalsUseCase
 import com.metacto.featuresuggestion.domain.usecase.UpvoteFeatureProposalUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
@@ -33,12 +35,15 @@ class FeatureListViewModelTest {
     private val testDispatcher = StandardTestDispatcher()
     private lateinit var getFeatureProposals: GetFeatureProposalsUseCase
     private lateinit var upvoteFeatureProposal: UpvoteFeatureProposalUseCase
+    private lateinit var settingsDataStore: SettingsDataStore
 
     @Before
     fun setUp() {
         Dispatchers.setMain(testDispatcher)
         getFeatureProposals = mock()
         upvoteFeatureProposal = mock()
+        settingsDataStore = mock()
+        whenever(settingsDataStore.getEmail()).thenReturn(flowOf("test@test.com"))
     }
 
     @After
@@ -55,9 +60,9 @@ class FeatureListViewModelTest {
             total = 1,
             totalPages = 1
         )
-        whenever(getFeatureProposals.invoke(any(), any())).thenReturn(result)
+        whenever(getFeatureProposals.invoke(any(), any(), any(), any())).thenReturn(result)
 
-        val viewModel = FeatureListViewModel(getFeatureProposals, upvoteFeatureProposal)
+        val viewModel = FeatureListViewModel(getFeatureProposals, upvoteFeatureProposal, settingsDataStore)
         advanceUntilIdle()
 
         val state = viewModel.uiState.value
@@ -68,9 +73,9 @@ class FeatureListViewModelTest {
 
     @Test
     fun `load features sets error on failure`() = runTest {
-        whenever(getFeatureProposals.invoke(any(), any())).thenThrow(RuntimeException("Network error"))
+        whenever(getFeatureProposals.invoke(any(), any(), any(), any())).thenThrow(RuntimeException("Network error"))
 
-        val viewModel = FeatureListViewModel(getFeatureProposals, upvoteFeatureProposal)
+        val viewModel = FeatureListViewModel(getFeatureProposals, upvoteFeatureProposal, settingsDataStore)
         advanceUntilIdle()
 
         val state = viewModel.uiState.value
@@ -92,11 +97,11 @@ class FeatureListViewModelTest {
             ),
             page = 1, limit = 10, total = 2, totalPages = 1
         )
-        whenever(getFeatureProposals.invoke(any(), any()))
+        whenever(getFeatureProposals.invoke(any(), any(), any(), any()))
             .thenReturn(initialResult)
             .thenReturn(refreshResult)
 
-        val viewModel = FeatureListViewModel(getFeatureProposals, upvoteFeatureProposal)
+        val viewModel = FeatureListViewModel(getFeatureProposals, upvoteFeatureProposal, settingsDataStore)
         advanceUntilIdle()
 
         viewModel.refresh()

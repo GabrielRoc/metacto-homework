@@ -1,10 +1,12 @@
 package com.metacto.featuresuggestion.presentation.viewmodel
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import com.metacto.featuresuggestion.data.local.SettingsDataStore
 import com.metacto.featuresuggestion.domain.model.FeatureProposal
 import com.metacto.featuresuggestion.domain.usecase.CreateFeatureProposalUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
@@ -31,11 +33,14 @@ class CreateFeatureViewModelTest {
 
     private val testDispatcher = StandardTestDispatcher()
     private lateinit var createFeatureProposal: CreateFeatureProposalUseCase
+    private lateinit var settingsDataStore: SettingsDataStore
 
     @Before
     fun setUp() {
         Dispatchers.setMain(testDispatcher)
         createFeatureProposal = mock()
+        settingsDataStore = mock()
+        whenever(settingsDataStore.getEmail()).thenReturn(flowOf("test@test.com"))
     }
 
     @After
@@ -45,9 +50,8 @@ class CreateFeatureViewModelTest {
 
     @Test
     fun `submit with short text shows validation error`() = runTest {
-        val viewModel = CreateFeatureViewModel(createFeatureProposal)
+        val viewModel = CreateFeatureViewModel(createFeatureProposal, settingsDataStore)
         viewModel.onTextChanged("short")
-        viewModel.onEmailChanged("test@test.com")
 
         viewModel.submit()
 
@@ -57,26 +61,12 @@ class CreateFeatureViewModelTest {
     }
 
     @Test
-    fun `submit with invalid email shows validation error`() = runTest {
-        val viewModel = CreateFeatureViewModel(createFeatureProposal)
-        viewModel.onTextChanged("This is a valid feature proposal text")
-        viewModel.onEmailChanged("invalid-email")
-
-        viewModel.submit()
-
-        val state = viewModel.uiState.value
-        assertNotNull(state.emailError)
-        assertFalse(state.isSubmitting)
-    }
-
-    @Test
     fun `submit with valid data succeeds`() = runTest {
         val expected = FeatureProposal("1", "A great feature proposal text", "test@test.com", 0, "2024-01-01")
         whenever(createFeatureProposal.invoke(any(), any())).thenReturn(expected)
 
-        val viewModel = CreateFeatureViewModel(createFeatureProposal)
+        val viewModel = CreateFeatureViewModel(createFeatureProposal, settingsDataStore)
         viewModel.onTextChanged("A great feature proposal text")
-        viewModel.onEmailChanged("test@test.com")
 
         viewModel.submit()
         advanceUntilIdle()
@@ -91,9 +81,8 @@ class CreateFeatureViewModelTest {
         whenever(createFeatureProposal.invoke(any(), any()))
             .thenThrow(RuntimeException("Server error"))
 
-        val viewModel = CreateFeatureViewModel(createFeatureProposal)
+        val viewModel = CreateFeatureViewModel(createFeatureProposal, settingsDataStore)
         viewModel.onTextChanged("A great feature proposal text")
-        viewModel.onEmailChanged("test@test.com")
 
         viewModel.submit()
         advanceUntilIdle()
@@ -105,9 +94,8 @@ class CreateFeatureViewModelTest {
 
     @Test
     fun `onTextChanged clears text error`() {
-        val viewModel = CreateFeatureViewModel(createFeatureProposal)
+        val viewModel = CreateFeatureViewModel(createFeatureProposal, settingsDataStore)
         viewModel.onTextChanged("short")
-        viewModel.onEmailChanged("test@test.com")
         viewModel.submit()
 
         assertNotNull(viewModel.uiState.value.textError)
