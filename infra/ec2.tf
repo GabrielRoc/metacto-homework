@@ -6,14 +6,6 @@ resource "aws_security_group" "backend" {
   vpc_id      = data.aws_vpc.default.id
 
   ingress {
-    description = "SSH"
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
     description = "Backend API"
     from_port   = 3000
     to_port     = 3000
@@ -61,6 +53,7 @@ resource "aws_instance" "backend" {
   instance_type          = var.ec2_instance_type
   key_name               = var.key_pair_name != "" ? var.key_pair_name : aws_key_pair.generated[0].key_name
   vpc_security_group_ids = [aws_security_group.backend.id]
+  iam_instance_profile   = aws_iam_instance_profile.ec2_backend.name
 
   root_block_device {
     volume_size = 30

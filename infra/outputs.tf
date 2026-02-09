@@ -33,9 +33,24 @@ output "ec2_public_dns" {
   value       = aws_eip.backend.public_dns
 }
 
-output "ssh_command" {
-  description = "SSH command to connect to EC2"
-  value       = var.key_pair_name == "" ? "ssh -i infra/${var.project_name}-key.pem ec2-user@${aws_eip.backend.public_ip}" : "ssh -i <your-key>.pem ec2-user@${aws_eip.backend.public_ip}"
+output "github_actions_role_arn" {
+  description = "IAM Role ARN for GitHub Actions OIDC"
+  value       = aws_iam_role.github_actions.arn
+}
+
+output "deploy_bucket_name" {
+  description = "S3 bucket name for deploy artifacts"
+  value       = aws_s3_bucket.deploy.bucket
+}
+
+output "ec2_instance_id" {
+  description = "EC2 instance ID for SSM commands"
+  value       = aws_instance.backend.id
+}
+
+output "ssm_command" {
+  description = "SSM command to connect to EC2"
+  value       = "aws ssm start-session --target ${aws_instance.backend.id}"
 }
 
 output "deploy_frontend" {
@@ -48,9 +63,13 @@ output "deploy_frontend" {
 }
 
 output "deploy_backend" {
-  description = "Commands to deploy backend"
+  description = "Commands to deploy backend via SSM"
   value       = <<-EOT
-    scp -i infra/${var.project_name}-key.pem -r backend/ ec2-user@${aws_eip.backend.public_ip}:/opt/app/backend/
-    ssh -i infra/${var.project_name}-key.pem ec2-user@${aws_eip.backend.public_ip} "cd /opt/app && sudo docker compose up -d --build"
+    tar -czf backend.tar.gz -C backend .
+    aws s3 cp backend.tar.gz s3://${aws_s3_bucket.deploy.bucket}/backend.tar.gz
+    aws ssm send-command \
+      --instance-ids ${aws_instance.backend.id} \
+      --document-name AWS-RunShellScript \
+      --parameters 'commands=["aws s3 cp s3://${aws_s3_bucket.deploy.bucket}/backend.tar.gz /tmp/backend.tar.gz","rm -rf /opt/app/backend/*","tar -xzf /tmp/backend.tar.gz -C /opt/app/backend/","cd /opt/app && sudo docker compose up -d --build backend"]'
   EOT
 }
