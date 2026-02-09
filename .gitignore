@@ -1,0 +1,51 @@
+# Node
+node_modules/
+dist/
+.env
+*.env.local
+
+# Android
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+*.apk
+*.aab
+*.keystore
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+postgres-data/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Test
+coverage/
+.nyc_output/
+
+# Next.js
+frontend/.next/
+frontend/out/
+
+# Terraform
+infra/.terraform/
+infra/*.tfstate*
+infra/*.pem
+infra/terraform.tfvars
+
+# Logs
+*.log

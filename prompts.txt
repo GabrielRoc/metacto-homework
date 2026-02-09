@@ -1,0 +1,78 @@
+Feature Suggestion Platform - Prompt Registry
+==============================================
+
+This file tracks the prompts used during development of this project.
+
+---
+
+## Prompt 1: Full Implementation Plan
+
+Used to generate the entire project from scratch. The prompt defined:
+- Complete architecture (NestJS backend + Android native app)
+- Database schema (3 tables: authors, feature_proposals, upvotes)
+- All 14 phases of implementation
+- API endpoints (GET /features, POST /features, POST /features/:id/upvote)
+- Docker Compose setup (PostgreSQL, Redis, Backend)
+- CI/CD with GitHub Actions
+- Chaos testing with Python (10 scenarios)
+- Clean Architecture with SOLID principles
+- Tech stack: TypeORM, Zod, Swagger, Redis cache, OTel+Winston, Jetpack Compose, Hilt, Retrofit
+
+### Implementation phases executed:
+1. Project scaffolding (git, docker-compose, .gitignore)
+2. Backend domain layer (entities + repository interfaces)
+3. Backend application layer (DTOs with Zod, use cases)
+4. Backend infrastructure layer (TypeORM+PostgreSQL, Redis cache, OTel+Winston)
+5. Backend presentation layer (controllers, Zod pipe, exception filter, Swagger)
+6. Backend tests (3 unit test suites + e2e tests)
+7. Android data layer (Retrofit, DTOs, repository implementation, Hilt DI)
+8. Android domain layer (models, repository interface, use cases)
+9. Android presentation layer (Compose screens, ViewModels, Material3 theme, navigation)
+10. Android tests (6 test files: use cases, ViewModels, repository)
+11. Docker Compose configuration
+12. GitHub Actions CI/CD (backend + Android)
+13. README documentation
+14. Python chaos testing (10 robustness scenarios)
+
+---
+
+## Prompt 2 (Claude2): Audit Logging Setup
+
+> Write each prompt I send to you into a file prompts.txt, so I can audit the work. (MARQUE COMO Claude2)
+
+---
+
+## Prompt 3 (Claude2): Web Frontend with React/Next.js/MUI
+
+> Temos uma aplicação com backend e app Android, vamos desenvolver uma cópia do aplicativo Android mas como página web, deve utilizar React, Next e MUI
+
+---
+
+## Prompt 4 (Claude3): Audit Logging Setup
+
+> For each prompt I give you, write to a file prompts.txt, so I can audit the work. (MARQUE COMO Claude3)
+
+---
+
+## Prompt 5 (Claude3): AWS Infrastructure with Terraform
+
+> Implement AWS infrastructure with Terraform for minimal cost deployment:
+> - S3 + CloudFront for frontend (static export)
+> - EC2 t3.micro with docker-compose (backend + postgres + redis)
+> - No ALB, no RDS, no ElastiCache (cost savings)
+> - Default VPC (no NAT Gateway)
+> - Route53 with feature.rochatecnologia.com.br (frontend) and api.feature.rochatecnologia.com.br (backend)
+> - ACM certificate for HTTPS
+> - CloudFront function for SPA routing
+> - Auto-generated SSH key pair
+> - Estimated cost: ~$0/month (free tier) or ~$11/month after
+
+---
+
+## Prompt 6 (Claude3): GitHub Actions CD Workflows
+
+> Create CD (Continuous Deployment) GitHub Actions workflows for backend, frontend, and Android app:
+> - Backend CD: test -> deploy to EC2 via rsync + docker compose rebuild, with health check
+> - Frontend CD: lint + build static export -> sync to S3 -> invalidate CloudFront cache
+> - Android CD: test -> build release APK -> create GitHub Release with APK attached
+> - All triggered on push to main with path filters
