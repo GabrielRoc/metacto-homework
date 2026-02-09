@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
-import * as request from 'supertest';
+import request from 'supertest';
 import { AppModule } from '../../src/app.module';
 import { CreateFeatureProposalUseCase } from '../../src/application/use-cases/create-feature-proposal.use-case';
 import { ListFeatureProposalsUseCase } from '../../src/application/use-cases/list-feature-proposals.use-case';
