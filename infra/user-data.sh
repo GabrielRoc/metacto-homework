@@ -49,7 +49,7 @@ services:
       retries: 5
 
   backend:
-    build: ./backend
+    image: ${ecr_backend_url}:latest
     restart: unless-stopped
     ports:
       - "3000:3000"

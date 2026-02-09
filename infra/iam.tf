@@ -72,6 +72,28 @@ resource "aws_iam_role_policy" "github_actions" {
         ]
       },
       {
+        Sid    = "ECR"
+        Effect = "Allow"
+        Action = [
+          "ecr:GetAuthorizationToken"
+        ]
+        Resource = "*"
+      },
+      {
+        Sid    = "ECRRepo"
+        Effect = "Allow"
+        Action = [
+          "ecr:BatchCheckLayerAvailability",
+          "ecr:GetDownloadUrlForLayer",
+          "ecr:BatchGetImage",
+          "ecr:PutImage",
+          "ecr:InitiateLayerUpload",
+          "ecr:UploadLayerPart",
+          "ecr:CompleteLayerUpload"
+        ]
+        Resource = aws_ecr_repository.backend.arn
+      },
+      {
         Sid    = "CloudFrontInvalidation"
         Effect = "Allow"
         Action = [
@@ -146,9 +168,73 @@ resource "aws_iam_role_policy" "ec2_s3_deploy" {
   })
 }
 
+resource "aws_iam_role_policy" "ec2_ecr_pull" {
+  name = "${var.project_name}-ec2-ecr-pull"
+  role = aws_iam_role.ec2_backend.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "ecr:GetAuthorizationToken"
+        ]
+        Resource = "*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "ecr:BatchCheckLayerAvailability",
+          "ecr:GetDownloadUrlForLayer",
+          "ecr:BatchGetImage"
+        ]
+        Resource = aws_ecr_repository.backend.arn
+      }
+    ]
+  })
+}
+
 resource "aws_iam_instance_profile" "ec2_backend" {
   name = "${var.project_name}-ec2-backend"
   role = aws_iam_role.ec2_backend.name
+}
+
+# --- ECR Repository ---
+
+resource "aws_ecr_repository" "backend" {
+  name                 = "${var.project_name}-backend"
+  image_tag_mutability = "MUTABLE"
+  force_delete         = true
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+
+  tags = {
+    Name = "${var.project_name}-backend"
+  }
+}
+
+resource "aws_ecr_lifecycle_policy" "backend" {
+  repository = aws_ecr_repository.backend.name
+
+  policy = jsonencode({
+    rules = [
+      {
+        rulePriority = 1
+        description  = "Keep last 5 images"
+        selection = {
+          tagStatus   = "any"
+          countType   = "imageCountMoreThan"
+          countNumber = 5
+        }
+        action = {
+          type = "expire"
+        }
+      }
+    ]
+  })
 }
 
 # --- S3 Bucket for Deploy Artifacts ---

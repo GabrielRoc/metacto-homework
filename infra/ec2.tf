@@ -61,9 +61,10 @@ resource "aws_instance" "backend" {
   }
 
   user_data = templatefile("${path.module}/user-data.sh", {
-    db_name     = var.db_name
-    db_user     = var.db_user
-    db_password = var.db_password
+    db_name         = var.db_name
+    db_user         = var.db_user
+    db_password     = var.db_password
+    ecr_backend_url = aws_ecr_repository.backend.repository_url
   })
 
   tags = {

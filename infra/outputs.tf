@@ -48,6 +48,11 @@ output "ec2_instance_id" {
   value       = aws_instance.backend.id
 }
 
+output "ecr_repository_url" {
+  description = "ECR repository URL for backend images"
+  value       = aws_ecr_repository.backend.repository_url
+}
+
 output "ssm_command" {
   description = "SSM command to connect to EC2"
   value       = "aws ssm start-session --target ${aws_instance.backend.id}"
@@ -63,13 +68,14 @@ output "deploy_frontend" {
 }
 
 output "deploy_backend" {
-  description = "Commands to deploy backend via SSM"
+  description = "Commands to deploy backend via ECR + SSM"
   value       = <<-EOT
-    tar -czf backend.tar.gz -C backend .
-    aws s3 cp backend.tar.gz s3://${aws_s3_bucket.deploy.bucket}/backend.tar.gz
+    docker build -t ${aws_ecr_repository.backend.repository_url}:latest backend/
+    aws ecr get-login-password --region ${var.aws_region} | docker login --username AWS --password-stdin ${data.aws_caller_identity.current.account_id}.dkr.ecr.${var.aws_region}.amazonaws.com
+    docker push ${aws_ecr_repository.backend.repository_url}:latest
     aws ssm send-command \
       --instance-ids ${aws_instance.backend.id} \
       --document-name AWS-RunShellScript \
-      --parameters 'commands=["aws s3 cp s3://${aws_s3_bucket.deploy.bucket}/backend.tar.gz /tmp/backend.tar.gz","rm -rf /opt/app/backend/*","tar -xzf /tmp/backend.tar.gz -C /opt/app/backend/","cd /opt/app && sudo docker compose up -d --build backend"]'
+      --parameters 'commands=["aws ecr get-login-password --region ${var.aws_region} | docker login --username AWS --password-stdin ${data.aws_caller_identity.current.account_id}.dkr.ecr.${var.aws_region}.amazonaws.com","docker pull ${aws_ecr_repository.backend.repository_url}:latest","cd /opt/app && docker compose up -d backend"]'
   EOT
 }

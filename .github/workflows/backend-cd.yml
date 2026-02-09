@@ -89,26 +89,34 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: us-east-1
 
-      - name: Package backend
-        run: tar -czf backend.tar.gz -C backend .
+      - name: Login to Amazon ECR
+        id: ecr-login
+        uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Upload to S3
+      - name: Build and push Docker image
         run: |
-          aws s3 cp backend.tar.gz \
-            s3://${{ secrets.DEPLOY_BUCKET_NAME }}/backend-${{ github.sha }}.tar.gz
+          IMAGE="${{ secrets.ECR_REPOSITORY_URL }}:${{ github.sha }}"
+          IMAGE_LATEST="${{ secrets.ECR_REPOSITORY_URL }}:latest"
+          docker build -t "$IMAGE" -t "$IMAGE_LATEST" backend/
+          docker push "$IMAGE"
+          docker push "$IMAGE_LATEST"
 
       - name: Deploy via SSM
         id: ssm
         run: |
+          ECR_URL="${{ secrets.ECR_REPOSITORY_URL }}"
+          REGION="us-east-1"
+          REGISTRY=$(echo "$ECR_URL" | cut -d/ -f1)
+
           COMMAND_ID=$(aws ssm send-command \
             --instance-ids ${{ secrets.EC2_INSTANCE_ID }} \
             --document-name AWS-RunShellScript \
             --parameters "commands=[
-              \"aws s3 cp s3://${{ secrets.DEPLOY_BUCKET_NAME }}/backend-${{ github.sha }}.tar.gz /tmp/backend.tar.gz\",
-              \"rm -rf /opt/app/backend/*\",
-              \"tar -xzf /tmp/backend.tar.gz -C /opt/app/backend/\",
-              \"cd /opt/app && sudo docker compose up -d --build backend\",
-              \"rm -f /tmp/backend.tar.gz\"
+              \"aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin $REGISTRY\",
+              \"docker pull ${ECR_URL}:${{ github.sha }}\",
+              \"docker tag ${ECR_URL}:${{ github.sha }} ${ECR_URL}:latest\",
+              \"cd /opt/app && docker compose up -d backend\",
+              \"docker image prune -f\"
             ]" \
             --query 'Command.CommandId' \
             --output text)
