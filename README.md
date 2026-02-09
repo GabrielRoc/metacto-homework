@@ -2,6 +2,8 @@
 
 A monorepo platform where users can publish feature proposals, upvote them, and browse a paginated listing.
 
+**[Live App](https://feature.rochatecnologia.com.br)** | **[API Docs (Swagger)](https://feature.rochatecnologia.com.br/api/docs)**
+
 ## Architecture
 
 - **Backend**: NestJS with Clean Architecture (Domain, Application, Infrastructure, Presentation layers)
