@@ -19,6 +19,10 @@ const mockCreateFeature = vi.mocked(createFeature);
 
 beforeEach(() => {
   vi.clearAllMocks();
+  Storage.prototype.getItem = vi.fn((key: string) => {
+    if (key === "savedEmail") return "test@email.com";
+    return null;
+  });
 });
 
 afterEach(() => {
@@ -31,10 +35,6 @@ function getTextArea(container: HTMLElement) {
   return textareas[0] as HTMLTextAreaElement;
 }
 
-function getEmailInput(container: HTMLElement) {
-  return container.querySelector('input[type="email"]') as HTMLInputElement;
-}
-
 describe("CreateFeaturePage", () => {
   it("shows validation error for text that is too short", async () => {
     const user = userEvent.setup();
@@ -42,29 +42,11 @@ describe("CreateFeaturePage", () => {
     const { container } = render(<CreateFeaturePage />);
 
     const textField = getTextArea(container);
-    const emailField = getEmailInput(container);
 
     await user.type(textField, "Short");
-    await user.type(emailField, "valid@email.com");
     await user.click(screen.getByRole("button", { name: /submit proposal/i }));
 
     expect(screen.getByText("Text must be at least 10 characters")).toBeInTheDocument();
-    expect(mockCreateFeature).not.toHaveBeenCalled();
-  });
-
-  it("shows validation error for invalid email", async () => {
-    const user = userEvent.setup();
-
-    const { container } = render(<CreateFeaturePage />);
-
-    const textField = getTextArea(container);
-    const emailField = getEmailInput(container);
-
-    await user.type(textField, "This is a valid feature proposal text");
-    await user.type(emailField, "bad-email");
-    await user.click(screen.getByRole("button", { name: /submit proposal/i }));
-
-    expect(screen.getByText("Invalid email format")).toBeInTheDocument();
     expect(mockCreateFeature).not.toHaveBeenCalled();
   });
 
@@ -81,10 +63,8 @@ describe("CreateFeaturePage", () => {
     const { container } = render(<CreateFeaturePage />);
 
     const textField = getTextArea(container);
-    const emailField = getEmailInput(container);
 
     await user.type(textField, "A valid proposal text");
-    await user.type(emailField, "test@email.com");
     await user.click(screen.getByRole("button", { name: /submit proposal/i }));
 
     expect(mockCreateFeature).toHaveBeenCalledWith({
@@ -101,10 +81,8 @@ describe("CreateFeaturePage", () => {
     const { container } = render(<CreateFeaturePage />);
 
     const textField = getTextArea(container);
-    const emailField = getEmailInput(container);
 
     await user.type(textField, "A valid proposal text for testing");
-    await user.type(emailField, "test@email.com");
     await user.click(screen.getByRole("button", { name: /submit proposal/i }));
 
     expect(await screen.findByText("Server error")).toBeInTheDocument();

@@ -21,7 +21,7 @@ describe("fetchFeatures", () => {
 
     const result = await fetchFeatures(1, 10);
     expect(result).toEqual(mockResponse);
-    expect(mockFetch).toHaveBeenCalledWith("/api/features?page=1&limit=10");
+    expect(mockFetch).toHaveBeenCalledWith("/api/features?page=1&limit=10&sortBy=createdAt&sortOrder=desc");
   });
 
   it("throws error on HTTP failure", async () => {

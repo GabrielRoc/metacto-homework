@@ -4,8 +4,9 @@ import userEvent from "@testing-library/user-event";
 import HomePage from "../page";
 
 const mockPush = vi.fn();
+const mockReplace = vi.fn();
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: mockPush, back: vi.fn() }),
+  useRouter: () => ({ push: mockPush, back: vi.fn(), replace: mockReplace }),
 }));
 
 vi.mock("@/lib/api", () => ({
@@ -19,6 +20,10 @@ const mockFetchFeatures = vi.mocked(fetchFeatures);
 
 beforeEach(() => {
   vi.clearAllMocks();
+  Storage.prototype.getItem = vi.fn((key: string) => {
+    if (key === "savedEmail") return "test@test.com";
+    return null;
+  });
   vi.stubGlobal(
     "IntersectionObserver",
     vi.fn().mockImplementation(() => ({
