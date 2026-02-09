@@ -118,7 +118,7 @@ jobs:
         run: |
           COMMAND_ID="${{ steps.ssm.outputs.command_id }}"
           INSTANCE_ID="${{ secrets.EC2_INSTANCE_ID }}"
-          MAX_ATTEMPTS=30
+          MAX_ATTEMPTS=60
           ATTEMPT=0
 
           while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
